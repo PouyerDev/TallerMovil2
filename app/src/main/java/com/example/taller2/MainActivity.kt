@@ -27,6 +27,10 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, CamaraActivity::class.java)
             startActivity(intent)
         }
+        binding.imageButton3.setOnClickListener {
+            val intent = Intent(this, MapsActivity::class.java)
+            startActivity(intent)
+        }
 
 
 
