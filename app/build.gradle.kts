@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
 }
 
+
 android {
     namespace = "com.example.taller2"
     compileSdk = 34
@@ -38,6 +39,7 @@ android {
             viewBinding = true
         }
     }
+
 }
 
 dependencies {
@@ -54,6 +56,9 @@ dependencies {
     implementation ("com.google.android.gms:play-services-maps:18.2.0")
     implementation ("org.osmdroid:osmdroid-android:6.1.2")
     implementation ("com.google.code.gson:gson:2.8.8")
+    implementation("com.github.MKergall:osmbonuspack:6.9.0")
+
+
 
 
 

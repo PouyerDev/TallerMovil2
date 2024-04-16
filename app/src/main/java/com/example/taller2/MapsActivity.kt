@@ -2,6 +2,7 @@ package com.example.taller2
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -20,12 +21,16 @@ import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import androidx.core.content.ContextCompat
 import android.os.Environment
 import android.os.Handler
+import android.os.StrictMode
+import android.util.Log
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import com.example.taller2.databinding.ActivityMapsBinding
 import org.json.JSONArray
 import org.json.JSONObject
 import org.osmdroid.api.IGeoPoint
+import org.osmdroid.bonuspack.routing.OSRMRoadManager
+import org.osmdroid.bonuspack.routing.RoadManager
 import org.osmdroid.events.MapEventsReceiver
 import java.io.File
 import java.io.FileWriter
@@ -39,6 +44,7 @@ import java.io.IOException
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.overlay.MapEventsOverlay
+import org.osmdroid.views.overlay.Polyline
 
 
 class MapsActivity : AppCompatActivity(), SensorEventListener {
@@ -54,6 +60,10 @@ class MapsActivity : AppCompatActivity(), SensorEventListener {
     private lateinit var binding: ActivityMapsBinding
     private var mGeocoder: Geocoder? = null
 
+
+    //Rutas
+    private var roadOverlay: Polyline? = null
+    lateinit var roadManager: RoadManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,8 +102,30 @@ class MapsActivity : AppCompatActivity(), SensorEventListener {
         longClick()
 
 
-    }
+        //rutas
+        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+        roadManager = OSRMRoadManager(this, "ANDROID")
 
+
+
+    }
+    //Attribute
+    private fun drawRoute(start: GeoPoint, finish: GeoPoint) {
+        val routePoints = ArrayList<GeoPoint>()
+        routePoints.add(start)
+        routePoints.add(finish)
+        val road = roadManager.getRoad(routePoints)
+        Log.i("OSM_acticity", "Route length: ${road.mLength} klm")
+        Log.i("OSM_acticity", "Duration: ${road.mDuration / 60} min")
+        if (binding.map != null) {
+            roadOverlay?.let { binding.map.overlays.remove(it) }
+            roadOverlay = RoadManager.buildRoadOverlay(road)
+            roadOverlay?.outlinePaint?.color = Color.RED
+            roadOverlay?.outlinePaint?.strokeWidth = 10f
+            binding.map.overlays.add(roadOverlay)
+        }
+    }
     private fun longClick() {
         val mapEventsOverlay = MapEventsOverlay(object : MapEventsReceiver {
             override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
@@ -102,6 +134,7 @@ class MapsActivity : AppCompatActivity(), SensorEventListener {
 
             override fun longPressHelper(p: GeoPoint): Boolean {
                 addMarkerWithAddress(p)
+                lastKnownLocation?.let { drawRoute(it, p) }
                 return false
             }
         })
