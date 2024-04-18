@@ -45,6 +45,7 @@ import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase
 import org.osmdroid.util.MapTileIndex
 import org.osmdroid.views.overlay.MapEventsOverlay
 import org.osmdroid.views.overlay.Polyline
+import org.osmdroid.views.overlay.TilesOverlay
 
 
 class MapsActivity : AppCompatActivity(), SensorEventListener {
@@ -358,19 +359,11 @@ class MapsActivity : AppCompatActivity(), SensorEventListener {
             }
 
             "oscuro" -> {
-                map.setTileSource(
-                    object : OnlineTileSourceBase(
-                        "Mapbox Dark", 0, 19, 256, ".png",
-                        arrayOf("https://umap.openstreetmap.fr/en/map/anonymous-edit/1054581:y-mlvCOKOA_FuvPW9zF8xwy96niBiKSQeLm05JmBU_Q")
-                    ) {
-                        override fun getTileURLString(pMapTileIndex: Long): String {
-                            return baseUrl + MapTileIndex.getZoom(pMapTileIndex) + "/" +
-                                    MapTileIndex.getX(pMapTileIndex) + "/" +
-                                    MapTileIndex.getY(pMapTileIndex) + mImageFilenameEnding
-                        }
-                    }
-                )
+                binding.map.overlayManager.tilesOverlay.setColorFilter(TilesOverlay.INVERT_COLORS)
             }
+
+        }
         }
     }
-}
+
+
